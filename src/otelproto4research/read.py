@@ -44,7 +44,10 @@ def __parse_summary_data_point(point: metrics_pb2.SummaryDataPoint) -> Dict[str,
     }
     return data
 
-def metric2dataframe(metric: metrics_pb2.MetricsData) -> pd.DataFrame:
+def metrics_resource2dataframe(metric: metrics_pb2.MetricsData) -> pd.DataFrame:
+    pass
+
+def metrics_data2dataframe(metric: metrics_pb2.MetricsData) -> pd.DataFrame:
     rows = []
     for resource_metric in metric.resource_metrics:
         resource = resource_metric.resource
@@ -80,8 +83,14 @@ def metric2dataframe(metric: metrics_pb2.MetricsData) -> pd.DataFrame:
                         rows.append(row)
     return pd.DataFrame(rows)
 
-def log2dataframe(metric: logs_pb2.LogsData) -> pd.dataframe:
+def log_resource2dataframe(metric: logs_pb2.ResourceLogs) -> pd.dataframe:
     pass
 
-def trace2dataframe(metric: trace_pb2.TracesData) -> pd.dataframe:
+def log_data2dataframe(metric: logs_pb2.LogsData) -> pd.dataframe:
+    pass
+
+def trace_resource2dataframe(metric: trace_pb2.ResourceSpans) -> pd.dataframe:
+    pass
+
+def trace_data2dataframe(metric: trace_pb2.TracesData) -> pd.dataframe:
     pass
