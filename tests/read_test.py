@@ -1,25 +1,29 @@
 import random
 import time
-
+from pandas import json_normalize
 import pytest
 import opentelemetry.proto.metrics.v1.metrics_pb2 as metrics_pb2
 import opentelemetry.proto.resource.v1.resource_pb2 as resource_pb2
 import opentelemetry.proto.common.v1.common_pb2 as common_pb2
 import src.otelproto4research.read as fn
+from google.protobuf.json_format import MessageToJson
 import pandas as pd
 
 
 def gen_metric_data() -> metrics_pb2.MetricsData:
     md = metrics_pb2.MetricsData()
-    md.resource_metrics.append(gen_resource_metric())
+    for i in range(random.randint(1, 10)):
+        md.resource_metrics.append(gen_resource_metric())
     return md
 
 
 def gen_resource_metric() -> metrics_pb2.ResourceMetrics:
     rm = metrics_pb2.ResourceMetrics()
     rm.schema_url = "https://schema.org/"
-    rm.resource.attributes.append(gen_kv())
-    rm.scope_metrics.append(gen_scope_metric())
+    for i in range(random.randint(1, 10)):
+        rm.resource.attributes.append(gen_kv())
+    for i in range(random.randint(1, 10)):
+        rm.scope_metrics.append(gen_scope_metric())
     return rm
 
 
@@ -29,9 +33,10 @@ def gen_scope_metric() -> metrics_pb2.ScopeMetrics:
 
     sm.scope.name = "mock"
     sm.scope.version = "0.1.0"
-    sm.scope.attributes.append(gen_kv())
-
-    sm.metrics.append(gen_metric())
+    for i in range(random.randint(1, 10)):
+        sm.scope.attributes.append(gen_kv())
+    for i in range(random.randint(1, 10)):
+        sm.metrics.append(gen_metric())
     return sm
 
 
@@ -40,7 +45,23 @@ def gen_metric() -> metrics_pb2.Metric:
     m.name = "metric" + str(random.randint(1, 100))
     m.description = "description" + str(random.randint(1, 100))
     m.unit = "seconds"
-    m.gauge.data_points.append(gen_data_point())
+
+    choice = random.randint(0, 10)
+    if choice == 0:
+        for i in range(random.randint(1, 10)):
+            m.gauge.data_points.append(gen_data_point())
+    elif choice == 1:
+        for i in range(random.randint(1, 10)):
+            m.exponential_histogram.data_points.append(gen_exponential_histogram_data_point())
+    elif choice == 2:
+        for i in range(random.randint(1, 10)):
+            m.histogram.data_points.append(gen_histogram_data_point())
+    elif choice == 3:
+        for i in range(random.randint(1, 10)):
+            m.summary.data_points.append(gen_summary_data_point())
+    elif choice == 4:
+        for i in range(random.randint(1, 10)):
+            m.sum.data_points.append(gen_data_point())
     return m
 
 
@@ -49,8 +70,24 @@ def gen_data_point() -> metrics_pb2.NumberDataPoint:
     dp.start_time_unix_nano = time.time_ns()
     dp.time_unix_nano = time.time_ns()
     dp.as_int = random.randint(1, 100)
-    dp.attributes.append(gen_kv())
+    for i in range(random.randint(1, 10)):
+        dp.attributes.append(gen_kv())
     return dp
+
+
+def gen_summary_data_point() -> metrics_pb2.SummaryDataPoint:
+    sd = metrics_pb2.SummaryDataPoint()
+    return sd
+
+
+def gen_histogram_data_point() -> metrics_pb2.HistogramDataPoint:
+    sd = metrics_pb2.HistogramDataPoint()
+    return sd
+
+
+def gen_exponential_histogram_data_point() -> metrics_pb2.ExponentialHistogramDataPoint:
+    sd = metrics_pb2.ExponentialHistogramDataPoint()
+    return sd
 
 
 def gen_kv() -> common_pb2.KeyValue:
@@ -97,8 +134,5 @@ def gen_any_value() -> common_pb2.AnyValue:
 def test_basic_serialize():
     # 测试read_function的代码
     med = gen_metric_data()
-    print(med)
     df = fn.metrics_data2dataframe(med)
     print(df)
-
-
