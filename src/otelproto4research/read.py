@@ -57,7 +57,7 @@ def __parse_summary_data_point(point: metrics_pb2.SummaryDataPoint) -> Dict[
     return data
 
 
-def metrics_resource2dataframe(metric: metrics_pb2.MetricsData) -> pd.DataFrame:
+def metrics_resource2dataframe(metric: metrics_pb2.ResourceMetrics) -> pd.DataFrame:
     pass
 
 
